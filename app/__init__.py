@@ -13,7 +13,7 @@ app.config.from_envvar('APP_MODE')
 if app.config['APP_MODE'] == 'development':
     app.config.from_object('config.developmenty')
     app.config.from_pyfile('instance_config.py')
-elif app.config['APP_MODE' == 'production':
+elif app.config['APP_MODE'] == 'production':
     app.config.from_object('config.production')
     app.config.from_envvar('SECRET_KEY')
     app.config.from_envvar('DATABASE_URL')
