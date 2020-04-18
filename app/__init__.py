@@ -9,14 +9,13 @@ app.config.from_object('config.default')
 
 # Determine whether running development or production, and load 
 # environment variables appropriately
-app.config.from_envvar('APP_MODE')
+app.config['APP_MODE'] = os.environ.get('APP_MODE')
 if app.config['APP_MODE'] == 'development':
-    app.config.from_object('config.developmenty')
-    app.config.from_pyfile('instance_config.py')
+    app.config.from_object('config.development')
+    app.config.from_object('instance.config')
 elif app.config['APP_MODE'] == 'production':
     app.config.from_object('config.production')
-    app.config.from_envvar('SECRET_KEY')
-    app.config.from_envvar('DATABASE_URL')
-
+    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
+    app.config['DATABASE_URL'] = os.environ.get('DATABASE_URL')
 
 from app import views
