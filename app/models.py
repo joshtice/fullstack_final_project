@@ -1,14 +1,14 @@
 from app import db
 
 
-class User(db.Model):
-    __tablename__ = 'user'
+class Contact(db.Model):
+    __tablename__ = 'contact'
 
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(32))
     last_name = db.Column(db.String(32))
     department = db.Column(db.String(32))
-    errors = db.relationship('Error', backref='user', lazy=True)
+    errors = db.relationship('Error', backref='contact', lazy=True)
 
     def insert(self):
         db.session.add(self)
@@ -67,7 +67,7 @@ class Error(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     description = db.Column(db.String(256))
     is_resolved = db.Column(db.Boolean)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'),
+    contact_id = db.Column(db.Integer, db.ForeignKey('contact.id'),
         nullable=False)
     instrument_id = db.Column(db.Integer, db.ForeignKey('instrument.id'),
         nullable=False)
@@ -89,7 +89,7 @@ class Error(db.Model):
                 'id': self.id,
                 'description': self.description,
                 'is_resolved': self.is_resolved,
-                'user': self.user.format(),
+                'contact': self.contact.format(),
                 'instrument': self.instrument.format(),
             }
         )

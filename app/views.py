@@ -9,3 +9,8 @@ def index():
             'test_key': 'test_value',
         }
     )
+
+@app.route('/user/<int:id>', methods=['GET'])
+def user(id):
+    user = User.query.filter_by(id=id)
+    return jsonify(user.format())
