@@ -1,2 +1,1 @@
 DEBUG = False
-DATABASE_URI = ''

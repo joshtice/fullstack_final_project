@@ -5,8 +5,6 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 
 app = Flask(__name__, instance_relative_config=True)
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
 
 # Load default configuration
 app.config.from_object('config.default')
@@ -20,6 +18,11 @@ if app.config['APP_MODE'] == 'development':
 elif app.config['APP_MODE'] == 'production':
     app.config.from_object('config.production')
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
-    app.config['DATABASE_URL'] = os.environ.get('DATABASE_URL')
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 
-from app import views
+
+db = SQLAlchemy(app)
+migrate = Migrate(app, db)
+
+
+from app import models, auth, views

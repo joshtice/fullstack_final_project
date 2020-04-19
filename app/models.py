@@ -38,7 +38,7 @@ class Instrument(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     serial_number = db.Column(db.String(32))
     ip_address = db.Column(db.String(32))
-    errors = db.relationshipo('Error', backref='instrument', lazy=True)
+    errors = db.relationship('Error', backref='instrument', lazy=True)
 
     def insert(self):
         db.session.add(self)
@@ -67,7 +67,7 @@ class Error(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     description = db.Column(db.String(256))
     is_resolved = db.Column(db.Boolean)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id')
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'),
         nullable=False)
     instrument_id = db.Column(db.Integer, db.ForeignKey('instrument.id'),
         nullable=False)
