@@ -1,5 +1,6 @@
 from app import app
-from flask import jsonify
+from .models import Contact, Instrument, Error
+from flask import jsonify, abort
 
 
 @app.route('/', methods=['GET'])
@@ -10,7 +11,35 @@ def index():
         }
     )
 
-@app.route('/user/<int:id>', methods=['GET'])
-def user(id):
-    user = User.query.filter_by(id=id)
-    return jsonify(user.format())
+@app.route('/contact/<int:id>', methods=['GET'])
+def get_user(id):
+    contact = Contact.query.filter_by(id=id).first()
+    if contact:
+        return jsonify(contact.format())
+    else:
+        abort(404)
+
+@app.route('/instrument/<int:id>', methods=['GET'])
+def get_instrument(id):
+    instrument = Instrument.query.filter_by(id=id).first()
+    if instrument:
+        return jsonify(instrument.format())
+    else:
+        abort(404)
+
+@app.route('/error/<int:id>', methods=['GET'])
+def get_error(id):
+    error = Error.query.filter_by(id=id).first()
+    if error:
+        return jsonify(error.format())
+    else:
+        abort(404)
+
+@app.errorhandler(404)
+def not_found_error(error):
+    return jsonify(
+        {
+            'error_code': 404,
+            'error_message': 'The record or resource was not found.'
+        }
+    )
