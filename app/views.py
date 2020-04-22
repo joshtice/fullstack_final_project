@@ -11,7 +11,7 @@ def index():
         }
     )
 
-@app.route('/contact/<int:id>', methods=['GET'])
+@app.route('/contacts/<int:id>', methods=['GET'])
 def get_user(id):
     contact = Contact.query.filter_by(id=id).first()
     if contact:
@@ -19,7 +19,7 @@ def get_user(id):
     else:
         abort(404)
 
-@app.route('/instrument/<int:id>', methods=['GET'])
+@app.route('/instruments/<int:id>', methods=['GET'])
 def get_instrument(id):
     instrument = Instrument.query.filter_by(id=id).first()
     if instrument:
@@ -27,7 +27,7 @@ def get_instrument(id):
     else:
         abort(404)
 
-@app.route('/error/<int:id>', methods=['GET'])
+@app.route('/errors/<int:id>', methods=['GET'])
 def get_error(id):
     error = Error.query.filter_by(id=id).first()
     if error:
