@@ -2,14 +2,30 @@ from collections import OrderedDict
 from app import db
 
 
+contacts_instruments = db.Table(
+    'contacts_instruments',
+    db.Column('contact_id', db.Integer, db.ForeignKey('contact.id'), primary_key=True),
+    db.Column('instrument_id', db.Integer, db.ForeignKey('instrument.id'), primary_key=True)
+)
+
+
 class Contact(db.Model):
+
     __tablename__ = 'contact'
 
     id = db.Column(db.Integer, primary_key=True)
-    first_name = db.Column(db.String(32))
-    last_name = db.Column(db.String(32))
+    first_name = db.Column(db.String(32), nullable=False)
+    last_name = db.Column(db.String(32), nullable=False)
     department = db.Column(db.String(32))
     errors = db.relationship('Error', backref='contact', lazy=True)
+    instruments = db.relationship('Instrument', secondary='contacts_instruments',
+        backref=db.backref('contacts', lazy=True)
+    )
+
+    def __init__(self, first_name, last_name, department):
+        self.first_name = first_name
+        self.last_name = last_name
+        self.department = department
 
     def insert(self):
         db.session.add(self)
@@ -34,12 +50,19 @@ class Contact(db.Model):
 
 
 class Instrument(db.Model):
+
     __tablename__ = 'instrument'
 
     id = db.Column(db.Integer, primary_key=True)
-    serial_number = db.Column(db.String(32))
+    serial_number = db.Column(db.String(32), nullable=False)
     ip_address = db.Column(db.String(32))
-    errors = db.relationship('Error', backref='instrument', lazy=True)
+    errors = db.relationship(
+        'Error', backref='instrument', lazy=True, cascade='all, delete'
+    )
+
+    def __init__(self, serial_number, ip_address):
+        self.serial_number = serial_number
+        self.ip_address = ip_address
 
     def insert(self):
         db.session.add(self)
@@ -63,18 +86,31 @@ class Instrument(db.Model):
 
 
 class Error(db.Model):
+
     __tablename__ = 'error'
 
     id = db.Column(db.Integer, primary_key=True)
-    description = db.Column(db.String(256))
+    description = db.Column(db.String(256), nullable=False)
     is_resolved = db.Column(db.Boolean)
     contact_id = db.Column(db.Integer, db.ForeignKey('contact.id'),
         nullable=False)
     instrument_id = db.Column(db.Integer, db.ForeignKey('instrument.id'),
         nullable=False)
 
+    def __init__(self, description, contact, instrument, is_resolved=False):
+        self.description = description
+        self.contact = contact
+        self.instrument = instrument
+        self.is_resolved = is_resolved
+        if self.instrument not in self.contact.instruments:
+            self.contact.instruments.append(self.instrument)
+        if self.contact not in self.instrument.contacts:
+            self.instrument.contacts.append(self.contact)
+
     def insert(self):
         db.session.add(self)
+        db.session.add(self.instrument)
+        db.session.add(self.contact)
         db.session.commit()
 
     def update(self):
