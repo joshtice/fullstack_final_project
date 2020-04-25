@@ -2,13 +2,6 @@ from collections import OrderedDict
 from app import db
 
 
-contacts_instruments = db.Table(
-    'contacts_instruments',
-    db.Column('contact_id', db.Integer, db.ForeignKey('contact.id'), primary_key=True),
-    db.Column('instrument_id', db.Integer, db.ForeignKey('instrument.id'), primary_key=True)
-)
-
-
 class Contact(db.Model):
 
     __tablename__ = 'contact'
@@ -18,9 +11,6 @@ class Contact(db.Model):
     last_name = db.Column(db.String(32), nullable=False)
     department = db.Column(db.String(32))
     errors = db.relationship('Error', backref='contact', lazy=True)
-    instruments = db.relationship('Instrument', secondary='contacts_instruments',
-        backref=db.backref('contacts', lazy=True)
-    )
 
     def __init__(self, first_name, last_name, department):
         self.first_name = first_name
@@ -102,15 +92,9 @@ class Error(db.Model):
         self.contact = contact
         self.instrument = instrument
         self.is_resolved = is_resolved
-        if self.instrument not in self.contact.instruments:
-            self.contact.instruments.append(self.instrument)
-        if self.contact not in self.instrument.contacts:
-            self.instrument.contacts.append(self.contact)
 
     def insert(self):
         db.session.add(self)
-        db.session.add(self.instrument)
-        db.session.add(self.contact)
         db.session.commit()
 
     def update(self):
