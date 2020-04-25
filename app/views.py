@@ -14,9 +14,19 @@ def index():
 @app.route('/contacts', methods=['GET'])
 def get_all_contacts():
     page = request.args.get('page', default=1, type=int)
-    contacts = Contact.query.paginate(
-        page=page, per_page=20, error_out=False
-    )
+    query = {
+        key: request.args[key] for key in request.args if key != 'page'
+    }
+    if request.args:
+        contacts = Contact.query.filter_by(**query).paginate(
+            page=page, 
+            per_page=app.config['RECORDS_PER_PAGE'], 
+            error_out=False
+        )
+    else:
+        contacts = Contact.query.paginate(
+            page=page, per_page=app.config['RECORDS_PER_PAGE'], error_out=False
+        )
     return jsonify(
         {
             'page': page,
@@ -47,9 +57,19 @@ def get_contact_errors(id):
 @app.route('/instruments', methods=['GET'])
 def get_all_instruments():
     page = request.args.get('page', default=1, type=int)
-    instruments = Instrument.query.paginate(
-        page=page, per_page=20, error_out=False
-    )
+    query = {
+        key: request.args[key] for key in request.args if key != 'page'
+    }
+    if request.args:
+        instruments = Instrument.query.filter_by(**query).paginate(
+            page=page, 
+            per_page=app.config['RECORDS_PER_PAGE'], 
+            error_out=False
+        )
+    else:
+        instruments = Instrument.query.paginate(
+            page=page, per_page=app.config['RECORDS_PER_PAGE'], error_out=False
+        )
     return jsonify(
         {
             'page': page,
@@ -80,9 +100,19 @@ def get_instrument_errors(id):
 @app.route('/errors', methods=['GET'])
 def get_all_errors():
     page = request.args.get('page', default=1, type=int)
-    errors = Error.query.paginate(
-        page=page, per_page=20, error_out=False
-    )
+    query = {
+        key: request.args[key] for key in request.args if key != 'page'
+    }
+    if request.args:
+        errors = Error.query.filter_by(**query).paginate(
+            page=page, 
+            per_page=app.config['RECORDS_PER_PAGE'], 
+            error_out=False
+        )
+    else:
+        errors = Error.query.paginate(
+            page=page, per_page=app.config['RECORDS_PER_PAGE'], error_out=False
+        )
     return jsonify(
         {
             'page': page,
