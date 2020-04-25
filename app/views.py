@@ -7,7 +7,7 @@ from flask import jsonify, abort, request
 def index():
     return jsonify(
         {
-            'test_key': 'test_value',
+            'status': 'healthy',
         }
     ), 200
 
@@ -26,8 +26,11 @@ def get_all_contacts():
 
 @app.route('/contacts/<int:id>', methods=['GET'])
 def get_contact(id):
-    contact = Contact.query.filter_by(id=id).first_or_404()
-    return jsonify(contact.format()), 200
+    try:
+        contact = Contact.query.get(id)
+        return jsonify(contact.format()), 200
+    except:
+        abort(404)
 
 @app.route('/instruments', methods=['GET'])
 def get_all_instruments():
@@ -46,8 +49,11 @@ def get_all_instruments():
 
 @app.route('/instruments/<int:id>', methods=['GET'])
 def get_instrument(id):
-    instrument = Instrument.query.filter_by(id=id).first_or_404()
-    return jsonify(instrument.format()), 200
+    try:
+        instrument = Instrument.query.get(id)
+        return jsonify(instrument.format()), 200
+    except:
+        abort(404)
 
 @app.route('/errors', methods=['GET'])
 def get_all_errors():
@@ -66,8 +72,11 @@ def get_all_errors():
 
 @app.route('/errors/<int:id>', methods=['GET'])
 def get_error(id):
-    error = Error.query.filter_by(id=id).first_or_404()
-    return jsonify(error.format()), 200
+    try:
+        error = Error.query.get(id)
+        return jsonify(error.format()), 200
+    except:
+        abort(404)
 
 
 
