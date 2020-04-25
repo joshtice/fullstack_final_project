@@ -1,4 +1,4 @@
-from collections import OrderedDict
+from datetime import datetime
 from app import db
 
 
@@ -80,17 +80,20 @@ class Error(db.Model):
     __tablename__ = 'error'
 
     id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     description = db.Column(db.String(256), nullable=False)
-    is_resolved = db.Column(db.Boolean)
+    is_resolved = db.Column(db.Boolean, nullable=False, default=False)
     contact_id = db.Column(db.Integer, db.ForeignKey('contact.id'),
         nullable=False)
     instrument_id = db.Column(db.Integer, db.ForeignKey('instrument.id'),
         nullable=False)
 
-    def __init__(self, description, contact, instrument, is_resolved=False):
+    def __init__(self, description, contact, instrument, date=datetime.utcnow(), 
+        is_resolved=False):
         self.description = description
         self.contact = contact
         self.instrument = instrument
+        self.date = date
         self.is_resolved = is_resolved
 
     def insert(self):
@@ -109,6 +112,7 @@ class Error(db.Model):
             {
                 'id': self.id,
                 'description': self.description,
+                'date': self.date,
                 'is_resolved': self.is_resolved,
                 'contact': self.contact.format(),
                 'instrument': self.instrument.format(),
