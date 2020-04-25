@@ -13,7 +13,7 @@ def index():
 
 @app.route('/contacts', methods=['GET'])
 def get_all_contacts():
-    page = request.args.get('page', 1, type=int)
+    page = request.args.get('page', default=1, type=int)
     contacts = Contact.query.paginate(
         page=page, per_page=20, error_out=False
     )
@@ -32,9 +32,21 @@ def get_contact(id):
     except:
         abort(404)
 
+@app.route('/contacts/<int:id>/errors', methods=['GET'])
+def get_contact_errors(id):
+    try:
+        contact = Contact.query.get(id)
+        return jsonify(
+            {
+                'errors': [error.format() for error in contact.errors],
+            }
+        ), 200
+    except:
+        abort(404)
+
 @app.route('/instruments', methods=['GET'])
 def get_all_instruments():
-    page = request.args.get('page', 1, type=int)
+    page = request.args.get('page', default=1, type=int)
     instruments = Instrument.query.paginate(
         page=page, per_page=20, error_out=False
     )
@@ -55,9 +67,19 @@ def get_instrument(id):
     except:
         abort(404)
 
+@app.route('/instruments/<int:id>/errors', methods=['GET'])
+def get_instrument_errors(id):
+    try:
+        instrument = Instrument.query.get(id)
+        return jsonify({
+            'errors': [error.format() for error in instrument.errors],
+        }), 200
+    except:
+        abort(404)
+
 @app.route('/errors', methods=['GET'])
 def get_all_errors():
-    page = request.args.get('page', 1, type=int)
+    page = request.args.get('page', default=1, type=int)
     errors = Error.query.paginate(
         page=page, per_page=20, error_out=False
     )
