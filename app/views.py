@@ -36,23 +36,45 @@ def get_all_contacts():
 
 @app.route('/contacts/<int:id>', methods=['GET'])
 def get_contact(id):
-    try:
-        contact = Contact.query.get(id)
-        return jsonify(contact.format()), 200
-    except:
-        abort(404)
+    contact = Contact.query.get_or_404(id)
+    return jsonify(contact.format()), 200
 
 @app.route('/contacts/<int:id>/errors', methods=['GET'])
 def get_contact_errors(id):
+    contact = Contact.query.get_or_404(id)
+    return jsonify(
+        {
+            'errors': [error.format() for error in contact.errors],
+        }
+    ), 200
+
+@app.route('/contacts', methods=['POST'])
+def post_contact():
+    contact = Contact(**request.get_json())
     try:
-        contact = Contact.query.get(id)
-        return jsonify(
-            {
-                'errors': [error.format() for error in contact.errors],
-            }
-        ), 200
+        contact.insert()
+        return jsonify(contact.format()), 200
     except:
-        abort(404)
+        abort(400)
+
+@app.route('/contacts/<int:id>', methods=['PATCH'])
+def patch_contact(id):
+    contact = Contact.query.get_or_404(id)
+    try:
+        for key in request.get_json():
+            contact[key] = request.get_json()['key']
+        contact.update()
+        return jsonify(contact.format()), 200
+    except:
+        abort(400)
+
+@app.route('/contacts/<int:id>', methods=['DELETE'])
+def delete_contact(id):
+    contact = Contact.query.get_or_404(id)
+    contact.delete()
+    return jsonify(contact.format()), 200
+
+
 
 @app.route('/instruments', methods=['GET'])
 def get_all_instruments():
@@ -97,6 +119,8 @@ def get_instrument_errors(id):
     except:
         abort(404)
 
+
+
 @app.route('/errors', methods=['GET'])
 def get_all_errors():
     page = request.args.get('page', default=1, type=int)
@@ -132,13 +156,29 @@ def get_error(id):
 
 
 
-
+@app.errorhandler(400)
+def bad_request_error(error):
+    return jsonify(
+        {
+            'error_code': 400,
+            'error_message': 'The request was not formed correctly.',
+        }
+    ), 400
 
 @app.errorhandler(404)
 def not_found_error(error):
     return jsonify(
         {
             'error_code': 404,
-            'error_message': 'The record or resource was not found.'
+            'error_message': 'The record or resource was not found.',
         }
     ), 404
+
+@app.errorhandler(500)
+def server_error(error):
+    return jsonify(
+        {
+            'error_code': 500,
+            'error_message': 'A server error occurred.',
+        }
+    ), 500
