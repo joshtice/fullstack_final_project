@@ -11,6 +11,10 @@ def index():
         }
     ), 200
 
+########################################################################
+# Contacts
+########################################################################
+
 @app.route('/contacts', methods=['GET'])
 def get_all_contacts():
     page = request.args.get('page', default=1, type=int)
@@ -62,7 +66,7 @@ def patch_contact(id):
     contact = Contact.query.get_or_404(id)
     try:
         for key in request.get_json():
-            contact[key] = request.get_json()['key']
+            contact[key] = request.get_json()[key]
         contact.update()
         return jsonify(contact.format()), 200
     except:
@@ -75,6 +79,9 @@ def delete_contact(id):
     return jsonify(contact.format()), 200
 
 
+########################################################################
+# Instruments
+########################################################################
 
 @app.route('/instruments', methods=['GET'])
 def get_all_instruments():
@@ -103,23 +110,46 @@ def get_all_instruments():
 
 @app.route('/instruments/<int:id>', methods=['GET'])
 def get_instrument(id):
-    try:
-        instrument = Instrument.query.get(id)
-        return jsonify(instrument.format()), 200
-    except:
-        abort(404)
+    instrument = Instrument.query.get_or_404(id)
+    return jsonify(instrument.format()), 200
 
 @app.route('/instruments/<int:id>/errors', methods=['GET'])
 def get_instrument_errors(id):
+    instrument = Instrument.query.get_or_404(id)
+    return jsonify({
+        'errors': [error.format() for error in instrument.errors],
+    }), 200
+
+@app.route('/instruments', methods=['POST'])
+def post_instrument():
+    instrument = Instrument(**request.get_json())
     try:
-        instrument = Instrument.query.get(id)
-        return jsonify({
-            'errors': [error.format() for error in instrument.errors],
-        }), 200
+        instrument.insert()
+        return jsonify(instrument.format()), 200
     except:
-        abort(404)
+        abort(400)
+
+@app.route('/instruments/<int:id>', methods=['PATCH'])
+def patch_instrument(id):
+    instrument = Instrument.query.get_or_404(id)
+    try:
+        for key in request.get_json():
+            instrument[key] = request.get_json()[key]
+        instrument.update()
+        return jsonify(instrument.format()), 200
+    except:
+        abort(400)
+
+@app.route('/instruments/<int:id>', methods=['DELETE'])
+def delete_instrument(id):
+    instrument = Instrument.query.get_or_404(id)
+    instrument.delete()
+    return jsonify(instrument.format()), 200
 
 
+########################################################################
+# Errors
+########################################################################
 
 @app.route('/errors', methods=['GET'])
 def get_all_errors():
@@ -155,6 +185,9 @@ def get_error(id):
         abort(404)
 
 
+########################################################################
+# App Error Handlers
+########################################################################
 
 @app.errorhandler(400)
 def bad_request_error(error):
