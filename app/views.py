@@ -178,15 +178,38 @@ def get_all_errors():
 
 @app.route('/errors/<int:id>', methods=['GET'])
 def get_error(id):
+    error = Error.query.get_or_404(id)
+    return jsonify(error.format()), 200
+
+@app.route('/errors', methods=['POST'])
+def post_error():
+    error = Error(**request.get_json())
     try:
-        error = Error.query.get(id)
+        error.insert()
         return jsonify(error.format()), 200
     except:
-        abort(404)
+        abort(400)
+
+@app.route('/errors/<int:id>', methods=['PATCH'])
+def patch_error(id):
+    error = Error.query.get_or_404(id)
+    try:
+        for key in request.get_json():
+            error[key] = request.get_json()[key]
+        error.update()
+        return jsonify(error.format()), 200
+    except:
+        abort(400)
+
+@app.route('/errors/<int:id>', methods=['DELETE'])
+def delete_error(id):
+    error = Error.query.get_or_404(id)
+    error.delete()
+    return jsonify(error.format()), 200
 
 
 ########################################################################
-# App Error Handlers
+# Error Handlers
 ########################################################################
 
 @app.errorhandler(400)
