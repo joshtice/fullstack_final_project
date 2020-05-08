@@ -1,6 +1,7 @@
 from app import app
 from .models import Contact, Instrument, Error
-from flask import jsonify, abort, request
+from .auth import AuthError, requires_auth
+from flask import abort, jsonify, redirect, request
 
 
 @app.route('/', methods=['GET'])
@@ -11,11 +12,16 @@ def index():
         }
     ), 200
 
+@app.route('/login', methods=['GET'])
+def login():
+    return redirect("https://dev-udacity.auth0.com/")
+
 ########################################################################
 # Contacts
 ########################################################################
 
 @app.route('/contacts', methods=['GET'])
+@requires_auth('read:contacts')
 def get_all_contacts():
     page = request.args.get('page', default=1, type=int)
     query = {
@@ -238,3 +244,12 @@ def server_error(error):
             'error_message': 'A server error occurred.',
         }
     ), 500
+
+@app.errorhandler(AuthError)
+def authorization_error(error):
+    return jsonify(
+        {
+            'error_code': error.error_code,
+            'error_message': error.error_message,
+        }
+    ), error.error_code

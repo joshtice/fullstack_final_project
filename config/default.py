@@ -1,3 +1,6 @@
 DEBUG = False
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 RECORDS_PER_PAGE = 20
+AUTH0_DOMAIN = 'dev-udacity.auth0.com'
+ALGORITHMS = ['RS256']
+API_AUDIENCE = 'error-logging-app'
