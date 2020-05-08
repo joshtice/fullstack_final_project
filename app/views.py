@@ -45,11 +45,14 @@ def get_all_contacts():
     ), 200
 
 @app.route('/contacts/<int:id>', methods=['GET'])
+@requires_auth('read:contacts')
 def get_contact(id):
     contact = Contact.query.get_or_404(id)
     return jsonify(contact.format()), 200
 
 @app.route('/contacts/<int:id>/errors', methods=['GET'])
+@requires_auth('read:contacts')
+@requires_auth('read:errors')
 def get_contact_errors(id):
     contact = Contact.query.get_or_404(id)
     return jsonify(
@@ -59,6 +62,7 @@ def get_contact_errors(id):
     ), 200
 
 @app.route('/contacts', methods=['POST'])
+@requires_auth('create:contacts')
 def post_contact():
     contact = Contact(**request.get_json())
     try:
@@ -68,6 +72,7 @@ def post_contact():
         abort(400)
 
 @app.route('/contacts/<int:id>', methods=['PATCH'])
+@requires_auth('update:contacts')
 def patch_contact(id):
     contact = Contact.query.get_or_404(id)
     try:
@@ -79,6 +84,7 @@ def patch_contact(id):
         abort(400)
 
 @app.route('/contacts/<int:id>', methods=['DELETE'])
+@requires_auth('delete:contacts')
 def delete_contact(id):
     contact = Contact.query.get_or_404(id)
     contact.delete()
@@ -90,6 +96,7 @@ def delete_contact(id):
 ########################################################################
 
 @app.route('/instruments', methods=['GET'])
+@requires_auth('read:instruments')
 def get_all_instruments():
     page = request.args.get('page', default=1, type=int)
     query = {
@@ -115,11 +122,14 @@ def get_all_instruments():
     ), 200
 
 @app.route('/instruments/<int:id>', methods=['GET'])
+@requires_auth('read:instruments')
 def get_instrument(id):
     instrument = Instrument.query.get_or_404(id)
     return jsonify(instrument.format()), 200
 
 @app.route('/instruments/<int:id>/errors', methods=['GET'])
+@requires_auth('read:instruments')
+@requires_auth('read:errors')
 def get_instrument_errors(id):
     instrument = Instrument.query.get_or_404(id)
     return jsonify({
@@ -127,6 +137,7 @@ def get_instrument_errors(id):
     }), 200
 
 @app.route('/instruments', methods=['POST'])
+@requires_auth('create:instruments')
 def post_instrument():
     instrument = Instrument(**request.get_json())
     try:
@@ -136,6 +147,7 @@ def post_instrument():
         abort(400)
 
 @app.route('/instruments/<int:id>', methods=['PATCH'])
+@requires_auth('update:instruments')
 def patch_instrument(id):
     instrument = Instrument.query.get_or_404(id)
     try:
@@ -147,6 +159,7 @@ def patch_instrument(id):
         abort(400)
 
 @app.route('/instruments/<int:id>', methods=['DELETE'])
+@requires_auth('delete:instruments')
 def delete_instrument(id):
     instrument = Instrument.query.get_or_404(id)
     instrument.delete()
@@ -158,6 +171,7 @@ def delete_instrument(id):
 ########################################################################
 
 @app.route('/errors', methods=['GET'])
+@requires_auth('read:errors')
 def get_all_errors():
     page = request.args.get('page', default=1, type=int)
     query = {
@@ -183,11 +197,13 @@ def get_all_errors():
     ), 200
 
 @app.route('/errors/<int:id>', methods=['GET'])
+@requires_auth('read:errors')
 def get_error(id):
     error = Error.query.get_or_404(id)
     return jsonify(error.format()), 200
 
 @app.route('/errors', methods=['POST'])
+@requires_auth('create:errors')
 def post_error():
     error = Error(**request.get_json())
     try:
@@ -197,6 +213,7 @@ def post_error():
         abort(400)
 
 @app.route('/errors/<int:id>', methods=['PATCH'])
+@requires_auth('update:errors')
 def patch_error(id):
     error = Error.query.get_or_404(id)
     try:
@@ -208,6 +225,7 @@ def patch_error(id):
         abort(400)
 
 @app.route('/errors/<int:id>', methods=['DELETE'])
+@requires_auth('delete:errors')
 def delete_error(id):
     error = Error.query.get_or_404(id)
     error.delete()
