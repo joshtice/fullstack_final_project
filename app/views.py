@@ -4,6 +4,23 @@ from .auth import AuthError, requires_auth
 from flask import abort, jsonify, redirect, request
 
 
+def generate_login_uri():
+    """
+    Contruct the appropriate endpoint URI to direct the user to a login
+    page
+    """
+
+    login_uri = (
+        f"https://{app.config['AUTH0_DOMAIN']}/authorize"
+        f"?audience={app.config['API_AUDIENCE']}"
+        f"&response_type=token"
+        f"&client_id={app.config['CLIENT_ID']}"
+        f"&redirect_uri={app.config['REDIRECT_URI']}"
+    )
+
+    return login_uri
+
+
 @app.route('/', methods=['GET'])
 def index():
     return jsonify(
@@ -14,7 +31,7 @@ def index():
 
 @app.route('/login', methods=['GET'])
 def login():
-    return redirect("https://dev-udacity.auth0.com/")
+    return redirect(generate_login_uri())
 
 ########################################################################
 # Contacts

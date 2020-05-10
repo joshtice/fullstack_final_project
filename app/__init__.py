@@ -17,7 +17,6 @@ if app.config['APP_MODE'] == 'development':
     app.config.from_object('instance.config')
 elif app.config['APP_MODE'] == 'production':
     app.config.from_object('config.production')
-    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 
 
