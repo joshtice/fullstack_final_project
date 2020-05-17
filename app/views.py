@@ -91,13 +91,16 @@ def post_contact():
 @app.route('/contacts/<int:id>', methods=['PATCH'])
 @requires_auth('update:contacts')
 def patch_contact(id):
+    print(request.headers)
+    print(request.get_json())
     contact = Contact.query.get_or_404(id)
     try:
         for key in request.get_json():
             contact[key] = request.get_json()[key]
         contact.update()
         return jsonify(contact.format()), 200
-    except:
+    except Error as e:
+        print(e)
         abort(400)
 
 @app.route('/contacts/<int:id>', methods=['DELETE'])

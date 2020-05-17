@@ -17,17 +17,30 @@ import pytest
 from app import *
 
 
-@pytest.fixture
+@pytest.fixture(scope='module')
 def client():
     app.config['TESTING'] = True
     with app.test_client() as client:
         with app.app_context():
             db.create_all()
+            contact1 = Contact('contact', '1', 'department1')
+            contact2 = Contact('contact', '2', 'department2')
+            instrument1 = Instrument('SN001', '0.0.0.1')
+            instrument2 = Instrument('SN002', '0.0.0.2')
+            error1 = Error('broken', contact1, instrument1)
+            contact1.insert()
+            contact2.insert()
+            instrument1.insert()
+            instrument2.insert()
+            error1.insert()
         yield client
 
-@pytest.fixture
+@pytest.fixture(scope='module')
 def admin_auth():
-    yield {'Authorization': f"Bearer {os.environ.get('ADMIN_TOKEN')}"}
+    yield {
+        'Content-Type': 'application/json',
+        'Authorization': f"Bearer {os.environ.get('ADMIN_TOKEN')}"
+    }
 
 
 def test_database_setup():
@@ -39,25 +52,74 @@ def test_client_status(client):
     assert response.status_code == 200
     assert json.loads(response.data) == {'status': 'healthy'}
 
-@pytest.mark.skip()
-def test_contacts_post(client, admin_auth_header):
-    data = json.dumps({
-        'first_name': 'contact',
-        'last_name': '1',
-        'department': 'department 1',
-    })
-    response = client.post(
-        '/contacts', data=data, headers=admin_auth_header)
-    assert response.status_code == 200
-    # assert json.loads(response.data) == data
-
 def test_contacts_get(client, admin_auth):
     response=client.get('/contacts', headers=admin_auth)
+    response_data = json.loads(response.data)
     assert response.status_code == 200
+    assert response_data['contacts'] == [
+        {
+            'id': 1,
+            'first_name': 'contact',
+            'last_name': '1',
+            'department': 'department1',
+        },
+        {
+            'id': 2,
+            'first_name': 'contact',
+            'last_name': '2',
+            'department': 'department2',
+        },
+    ]
+
+def test_contacts_post(client, admin_auth):
+    data = {
+        'first_name': 'contact',
+        'last_name': '3',
+        'department': 'department3',
+    }
+    response = client.post(
+        '/contacts', data=json.dumps(data), headers=admin_auth)
+    response_data = json.loads(response.data)
+    assert response.status_code == 200
+    assert response_data == {
+        'id': 3,
+        'first_name': 'contact',
+        'last_name': '3',
+        'department': 'department3',
+    }
+
+def test_contacts_patch(client, admin_auth):
+    data = {
+        'first_name': 'contact',
+        'last_name': '3',
+        'department': 'new department value',
+    }
+    response = client.patch(
+        '/contacts/3', data=json.dumps(data), headers=admin_auth)
+    response_data = json.loads(response.data)
+    assert response.status_code == 200
+    assert response_data == {
+        'id': 3,
+        'first_name': 'contact',
+        'last_name': '3',
+        'department': 'new department value',
+    }
+
+def test_contacts_delete(client, admin_auth):
+    response = client.delete('/contacts/3', headers=admin_auth)
+    response_data = json.loads(response.data)
+    assert response.status_code == 200
+    assert response_data == {
+        'id': 3,
+        'first_name': 'contact',
+        'last_name': '3',
+        'department': 'department3',
+    }
 
 def test_instruments_get(client, admin_auth):
     response=client.get('/instruments', headers=admin_auth)
     assert response.status_code == 200
 
 def test_contacts_delete(client):
-    pass
+    assert 1 == 1
+
