@@ -2,6 +2,7 @@ from app import app
 from .models import Contact, Instrument, Error
 from .auth import AuthError, requires_auth
 from flask import abort, jsonify, redirect, request
+from datetime import datetime
 
 
 def generate_login_uri():
@@ -91,16 +92,13 @@ def post_contact():
 @app.route('/contacts/<int:id>', methods=['PATCH'])
 @requires_auth('update:contacts')
 def patch_contact(id):
-    print(request.headers)
-    print(request.get_json())
     contact = Contact.query.get_or_404(id)
     try:
         for key in request.get_json():
-            contact[key] = request.get_json()[key]
+            setattr(contact, key, request.get_json()[key])
         contact.update()
         return jsonify(contact.format()), 200
     except Error as e:
-        print(e)
         abort(400)
 
 @app.route('/contacts/<int:id>', methods=['DELETE'])
@@ -172,7 +170,7 @@ def patch_instrument(id):
     instrument = Instrument.query.get_or_404(id)
     try:
         for key in request.get_json():
-            instrument[key] = request.get_json()[key]
+            setattr(instrument, key, request.get_json()[key])
         instrument.update()
         return jsonify(instrument.format()), 200
     except:
@@ -225,7 +223,21 @@ def get_error(id):
 @app.route('/errors', methods=['POST'])
 @requires_auth('create:errors')
 def post_error():
-    error = Error(**request.get_json())
+    data = request.get_json()
+    contact = Contact.query.get_or_404(data['contact'])
+    instrument = Instrument.query.get_or_404(data['instrument'])
+    date = (
+        datetime.strptime(data['date'], app.config['DATE_FORMAT']) 
+        if 'date' in data 
+        else datetime.utcnow()
+    )
+    error = Error(
+        description=data['description'],
+        contact=contact,
+        instrument=instrument,
+        date=date,
+        is_resolved=data.get('is_resolved', False)
+    )
     try:
         error.insert()
         return jsonify(error.format()), 200
@@ -236,9 +248,18 @@ def post_error():
 @requires_auth('update:errors')
 def patch_error(id):
     error = Error.query.get_or_404(id)
+    data = request.get_json()
+    if 'contact' in data:
+        error.contact = Contact.query.get_or_404(data['contact'])
+    if 'instrument' in data:
+        error.instrument = Instrument.query.get_or_404(data['instrument'])
+    if 'description' in data:
+        error.description = data['description']
+    if 'date' in data:
+        error.date = datetime.strptime(data['date'], app.config['DATE_FORMAT'])
+    if 'is_resolved' in data:
+        error.is_resolved = data['is_resolved']
     try:
-        for key in request.get_json():
-            error[key] = request.get_json()[key]
         error.update()
         return jsonify(error.format()), 200
     except:
@@ -248,8 +269,9 @@ def patch_error(id):
 @requires_auth('delete:errors')
 def delete_error(id):
     error = Error.query.get_or_404(id)
+    deleted_record = error.format()
     error.delete()
-    return jsonify(error.format()), 200
+    return jsonify(deleted_record), 200
 
 
 ########################################################################
@@ -260,8 +282,8 @@ def delete_error(id):
 def bad_request_error(error):
     return jsonify(
         {
-            'error_code': 400,
-            'error_message': 'The request was not formed correctly.',
+            'status_code': 400,
+            'message': 'The request was not formed correctly.',
         }
     ), 400
 
@@ -269,8 +291,8 @@ def bad_request_error(error):
 def not_found_error(error):
     return jsonify(
         {
-            'error_code': 404,
-            'error_message': 'The record or resource was not found.',
+            'status_code': 404,
+            'message': 'The record or resource was not found.',
         }
     ), 404
 
@@ -278,8 +300,8 @@ def not_found_error(error):
 def server_error(error):
     return jsonify(
         {
-            'error_code': 500,
-            'error_message': 'A server error occurred.',
+            'status_code': 500,
+            'message': 'A server error occurred.',
         }
     ), 500
 
@@ -287,7 +309,7 @@ def server_error(error):
 def authorization_error(error):
     return jsonify(
         {
-            'error_code': error.error_code,
-            'error_message': error.error_message,
+            'status_code': error.error_code,
+            'message': error.error_message,
         }
     ), error.error_code
