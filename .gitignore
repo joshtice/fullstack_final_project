@@ -1,3 +1,7 @@
+# Shell script for setting up development environment,
+# including confidential tokens
+setup.sh
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
