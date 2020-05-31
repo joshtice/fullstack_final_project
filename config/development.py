@@ -1,2 +1,2 @@
 DEBUG = True
-DATABASE_URI = ''
+REDIRECT_URI = 'http://127.0.0.1:5000/'

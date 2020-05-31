@@ -1,2 +1,2 @@
 DEBUG = False
-DATABASE_URI = ''
+REDIRECT_URI = 'https://error-logging-app.herokuapp.com/'
