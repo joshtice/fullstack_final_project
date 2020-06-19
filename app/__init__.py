@@ -16,15 +16,12 @@ def create_app():
 
     # Determine whether running development or production, and load 
     # environment variables appropriately
-    app.config['APP_MODE'] = os.environ.get('APP_MODE')
-    if app.config['APP_MODE'] == 'development':
-        app.config.from_object('config.development')
-        app.config.from_object('instance.config')
-    elif app.config['APP_MODE'] == 'test':
-        app.config.from_object('config.test')
-    elif app.config['APP_MODE'] == 'production':
-        app.config.from_object('config.production')
-        app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
+    config_dict = {
+        'development': 'config.development',
+        'test': 'config.test',
+        'production': 'config.production',
+    }
+    app.config.from_object(config_dict[os.environ.get('APP_MODE')])
 
     db.init_app(app)
     migrate.init_app(app)

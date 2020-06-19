@@ -1,2 +1,5 @@
+import os
+
 DEBUG = True
-REDIRECT_URI = 'http://127.0.0.1:5000/'
+REDIRECT_URI = os.environ.get('DEV_REDIRECT_URI', '')
+SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URI', '')

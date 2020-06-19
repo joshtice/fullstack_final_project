@@ -1,9 +1,13 @@
-DEBUG = False
-SQLALCHEMY_TRACK_MODIFICATIONS = False
-RECORDS_PER_PAGE = 20
-AUTH0_DOMAIN = 'dev-udacity.auth0.com'
-ALGORITHMS = ['RS256']
-API_AUDIENCE = 'error-logging-app'
-CLIENT_ID = 'r2f4Pw7sQnbZpsISjWweexbze0pbaK7r'
-REDIRECT_URI = 'http://127.0.0.1:5000/'
+import os
+
+# Auth0 configs
+AUTH0_DOMAIN = os.environ.get('AUTH0_DOMAIN', '')
+ALGORITHMS = os.environ.get('ALGORITHMS', '').split()
+API_AUDIENCE = os.environ.get('API_AUDIENCE', '')
+CLIENT_ID = os.environ.get('CLIENT_ID', '')
+
+# Miscellaneous configs
 DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
+DEBUG = False
+RECORDS_PER_PAGE = 20
+SQLALCHEMY_TRACK_MODIFICATIONS = False
