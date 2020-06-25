@@ -107,6 +107,7 @@ The following environment variables need to be available for the app to integrat
    - DEV_DATABASE_URI: Associate the database created above, i.e., postgresql://<user>@localhost:5432/\<name of database>
    - FLASK_APP: Should point to the project/app directory, e.g., if in the top level directory of the project, then enter ```export FLASK_APP=app```
 3. Start the app: ```flask run```
+4. Upgrade the database: ```python manage.py db upgrade```
 ### Running Tests
 1. To run tests locally, the [authorization environment variables](#add-environment-variables) from above are needed in addition to the following:
    - APP_MODE: Set to "test"
@@ -457,7 +458,9 @@ To set up the project for evaluation, the following steps may be followed.
 - Create a database for the API: ```createdb <database name>```
 - Open setup.sh and enter the database URI on the top line (you'll need to adjust 'username' and 'database name'): ```export DEV_DATABASE_URI='postgresql://<username>@localhost:5432/<database name>```
 - Load the required environment variables in setup.sh: ```source setup.sh```
+- Run the required database migrations: ```python manage.py db upgrade```
 - If you would like to interact with the development version of the app, then enter ```flask run``` and query the API through http://localhost:5000 with the provided authorization tokens, *e.g.*
   - Admin token: ```curl -H "Authorization: Bearer $ADMIN_TOKEN" http://localhost:5000/errors```
   - Contact token: ```curl -H "Authorization: Bearer $CONTACT_TOKEN http://localhost:5000/contacts```
 - If you would like to run the project's tests, then be sure that your local postgresql server is running and run ```./test.sh```
+- Note: On the author's machine, the python module python-jose would not import properly unless the virtual environment was deactivated and then re-activated after installing dependencies.
